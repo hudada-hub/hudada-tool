@@ -711,8 +711,7 @@ program
         console.log(chalk.yellow('请输入要加密的字符串'));
         return;
     }
-    const inputText = text.join(' ');
-    md5String(inputText);
+    md5String(text);
 });
 
 program

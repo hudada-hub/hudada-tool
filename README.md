@@ -1,4 +1,4 @@
-# My CLI 命令行工具
+# hudada-cli 命令行工具
 
 一个功能强大的命令行工具集，集成了本地文档搜索,文件操作、局域网文件传输、ssh终端操作,ai对话,快捷打开网页等多种实用功能。
 
@@ -23,7 +23,24 @@
 
 需要全局安装,在命令行中输入`my -h`即可查看帮助
 
+⚡️ 安装特别简单：
+```bash
+npm install hudada-cli -g --registry=https://registry.npmmirror.com 
+```
 
+注意: 安装包里包含了抠图的模型文件,比较大,请耐心下载安装
+
+如果安装不成功,(因为使用了sharp插件),安装失败的概率还是比较大的,可以尝试在命令行中输入 `npm i hudada-cli -g --registry=https://registry.npmmirror.com --force`
+进行强制安装
+
+
+
+
+🎯 装完直接输入 `my -h` 就能看到所有命令。整个工具是用 TypeScript 开发的，支持 Windows/Mac/Linux，代码完全开源。以后如果有一些人使用,我会好好维护这个项目.
+
+📦 项目地址：https://github.com/hudada-hub/hudada-tool
+
+🌟 如果觉得有用，欢迎试用和提建议！
 
 
 
@@ -37,7 +54,9 @@
 不仅是各种命令，还有各种账号呀，自己私密的东西，想要查看还需要每次都打开文件，再查看，非常繁琐，现在你只需要打开cmd,输入my git add就可以了解git add的各种用法，my linux tar就可以了解tar的用法
 
 my cli中,内置了一些常用的文档,比如git,docker,linux,python
+
 ![alt text](img/内置文档.png)
+
 原理是输入 `my git add`命令,则会在data文件夹中,在git文件夹中查找add.md文档,然后将文档渲染到命令行中.
 
 ![alt text](img/gitadd.png)
