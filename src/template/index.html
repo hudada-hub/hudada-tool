@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>局域网文件传输</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/style.css">
+
+</head>
+
+<body>
+    <h1>局域网文件传输</h1>
+
+    <div class="drop-zone" id="dropZone">
+        <div class="upload-area">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">拖放文件到这里或点击选择文件</div>
+            <div class="upload-buttons">
+                <button class="upload-btn" onclick="handleFileButtonClick(event)">
+                    <span class="btn-icon">📁</span>
+                    选择文件
+                </button>
+                <button class="upload-btn folder-btn" onclick="handleFolderButtonClick(event)">
+                    <span class="btn-icon">📂</span>
+                    选择文件夹
+                </button>
+            </div>
+            <input type="file" multiply id="fileInput" multiple style="display: none">
+            <input type="file" multiply id="folderInput" webkitdirectory directory multiple style="display: none">
+        </div>
+    </div>
+    <div id="uploadProgress" class="upload-progress"></div>
+
+    <div class="file-list" id="fileList"></div>
+
+    <div class="section-title">
+        文件浏览
+        <button onclick="location.reload()" class="refresh-btn">刷新列表</button>
+    </div>
+    <div class="folder-structure" id="folderStructure"></div>
+    <div id="fileTableContainer"></div>
+
+
+    <script>{{jsTemplate}}</script>
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,120 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\Administrator\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js
+
+PATH: 
+  C:\ProgramData\anaconda3\condabin;C:\Users\Administrator\.pyenv\pyenv-win\versions\3.10.6;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\libnvvp;C:\sqlite;C:\Users\Administrator\AppData\Roaming\npm;C:\Windows\System32;C:\Program Files\OpenSSL-Win64\bin;C:\ProgramData\chocolatey;C:\ProgramData\chocolatey\bin;C:\Apache24\bin;C:\Program Files\Redis\;C:\db\chromedriver-win64;E:\soft_install\Git\cmd;C:\Program Files (x86)\Tencent\微信web开发者工具\dll;C:\Users\Administrator\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\Administrator\.deno\bin;C:\Program Files\NVIDIA Corporation\NVIDIA app\NvDLISR;C:\Users\Administrator\AppData\Local\Android\Sdk\platform-tools;C:\Users\Administrator\AppData\Local\Android\Sdk\tools;C:\flutter\bin;C:\flutter\bin\cache\dart-sdk\bin;E:\01\t02-md\java\store\1.8.0_151\bin;C:\Users\Administrator\AppData\Local\Pub\Cache\bin;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\NVIDIA Corporation\Nsight Compute 2024.3.2\;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\lib;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include;E:\01\t02-md\wechat\wechat\software\cmder;C:\Users\Administrator\.pyenv\pyenv-win\bin;C:\Users\Administrator\.pyenv\pyenv-win\shims;E:\01\t02-md\java\store\1.8.0_151\jre\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\libnvvp;C:\sqlite;C:\Users\Administrator\AppData\Roaming\npm;C:\Windows\System32;C:\Program Files\OpenSSL-Win64\bin;C:\ProgramData\chocolatey;C:\ProgramData\chocolatey\bin;C:\Apache24\bin;C:\Program Files\Redis\;C:\db\chromedriver-win64;E:\soft_install\Git\cmd;C:\Program Files (x86)\Tencent\微信web开发者工具\dll;C:\Users\Administrator\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\Administrator\.deno\bin;C:\Program Files\NVIDIA Corporation\NVIDIA app\NvDLISR;C:\Users\Administrator\AppData\Local\Android\Sdk\platform-tools;C:\Users\Administrator\AppData\Local\Android\Sdk\tools;C:\flutter\bin;C:\flutter\bin\cache\dart-sdk\bin;C:\Users\Administrator\AppData\Loca;C:\Users\Administrator\AppData\Local\Programs\Microsoft VS Code\bin;
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  20.18.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: certificate has expired
+      at TLSSocket.onConnectSecure (node:_tls_wrap:1677:34)
+      at TLSSocket.emit (node:events:519:28)
+      at TLSSocket._finishInit (node:_tls_wrap:1076:8)
+      at ssl.onhandshakedone (node:_tls_wrap:862:12)
+
+npm manifest: 
+  {
+    "name": "local-doc-tool",
+    "version": "1.0.5",
+    "keywords": [
+      "程序员",
+      "文档",
+      "工具"
+    ],
+    "author": "胡大大",
+    "license": "MIT",
+    "description": "专为程序员准备的本地文档搜索工具",
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/hudada-hub/mydoc.git"
+    },
+    "bugs": {
+      "url": "https://github.com/hudada-hub/mydoc/issues"
+    },
+    "homepage": "https://github.com/hudada-hub/mydoc.git#readme",
+    "publishConfig": {
+      "access": "public",
+      "registry": "https://registry.npmjs.org/"
+    },
+    "bin": {
+      "my": "./dist/index.mjs"
+    },
+    "directories": {
+      "lib": "src"
+    },
+    "main": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "types": "./dist/index.d.ts"
+      }
+    },
+    "scripts": {
+      "build": "npm run clean &&  rollup -c",
+      "dev": "npm run clean &&  rollup -c -w",
+      "clean": "rimraf dist"
+    },
+    "files": [
+      "dist",
+      "data"
+    ],
+    "dependencies": {
+      "chalk": "^4.1.2",
+      "cli-highlight": "^2.1.11",
+      "commander": "^13.0.0",
+      "imagemin": "^9.0.0",
+      "imagemin-gifsicle": "^7.0.0",
+      "imagemin-mozjpeg": "^10.0.0",
+      "imagemin-pngquant": "^10.0.0",
+      "imagemin-webp": "^8.0.0",
+      "jszip": "^3.10.1",
+      "marked": "^14.0.0",
+      "marked-terminal": "^7.2.0",
+      "open": "^10.1.0",
+      "openai": "^4.79.1",
+      "rimraf": "^6.0.1",
+      "sharp": "^0.33.5",
+      "socket.io": "^4.8.1",
+      "socket.io-client": "^4.7.2",
+      "ssh2": "^1.11.0",
+      "xterm": "^5.1.0",
+      "xterm-addon-fit": "^0.7.0",
+      "xterm-addon-web-links": "^0.9.0"
+    },
+    "devDependencies": {
+      "@rollup/plugin-commonjs": "^28.0.0",
+      "@rollup/plugin-json": "^6.1.0",
+      "@rollup/plugin-node-resolve": "^16.0.0",
+      "@rollup/plugin-terser": "^0.4.4",
+      "@rollup/plugin-typescript": "^12.0.0",
+      "@types/marked": "^5.0.0",
+      "@types/marked-terminal": "^6.1.1",
+      "@types/node": "^20.0.0",
+      "@types/socket.io": "^3.0.1",
+      "@types/ssh2": "^1.15.4",
+      "array-union": "^3.0.1",
+      "rollup": "^4.30.1",
+      "rollup-plugin-copy": "^3.5.0",
+      "rollup-plugin-postcss": "^4.0.2",
+      "tslib": "^2.6.0",
+      "typescript": "^5.0.0"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
