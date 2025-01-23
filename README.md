@@ -284,4 +284,12 @@ my cli中,内置了一些常用的文档,比如git,docker,linux,python
 ![alt text](img/base64.png)
 
 
+- `my comment` - 生成类似佛祖保佑的注释
+
+- `my cleannode` - 一键可以循环清理node_modules文件夹
+
+- `my install` 循环检测文件夹中是否有package.json,如果有就安装依赖
+
+
+
 

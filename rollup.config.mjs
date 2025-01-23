@@ -131,6 +131,10 @@ export default [
           {
             src: 'src/template',
             dest: 'dist'
+          },
+          {
+            src: 'src/comment',
+            dest: 'dist'
           }
         ]
       })

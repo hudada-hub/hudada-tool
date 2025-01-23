@@ -1,0 +1,1 @@
+查看Shared workers，Service workers： chrome://inspect/

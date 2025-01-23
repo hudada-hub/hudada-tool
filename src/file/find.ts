@@ -18,27 +18,59 @@ interface SearchResult {
     size: number;
     modified: Date;
 }
+function parseArgv(argv: string[]): Record<string, string> {
+    const result: Record<string, string> = {};
+    
+    // 跳过前两个参数（node可执行文件路径和脚本路径）
+    const args = argv.slice(4);
 
-export async function findItems(searchPath: string, pattern?: string) {
-    try {
-        // 解析搜索参数
-        const options: FindOptions = {};
-        if (pattern) {
-            if (pattern.startsWith('-type=')) {
-                options.type = pattern.slice(6) as 'f' | 'd';
-            } else if (pattern.startsWith('-size=')) {
-                options.size = pattern.slice(6);
-            } else if (pattern.startsWith('-ext=')) {
-                options.ext = pattern.slice(5);
-            } else if (pattern.startsWith('-mtime=')) {
-                options.mtime = parseInt(pattern.slice(7));
-            } else if (pattern.startsWith('-maxdepth=')) {
-                options.maxdepth = parseInt(pattern.slice(10));
+    
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        
+        if (arg.includes('=')) {
+            // 处理 key=value 格式
+            const [key, value] = arg.split('=');
+            // 移除开头的 - 或 --
+            const cleanKey = key.replace(/^-+/, '');
+            result[cleanKey] = value;
+        } else if (arg.startsWith('-')) {
+            // 处理选项参数（以 - 或 -- 开头）
+            const key = arg.replace(/^-+/, ''); // 移除开头的 - 或 --
+            
+            // 如果下一个参数不是选项，则认为是当前选项的值
+            if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+                result[key] = args[i + 1];
+                i++; // 跳过下一个参数
             } else {
-                options.name = pattern;
+                // 如果没有值，则设置为 true
+                result[key] = 'true';
+            }
+        } else {
+            // 处理位置参数
+            if (!result['path']) {
+                result['path'] = arg;
+            } else if (!result['pattern']) {
+                result['pattern'] = arg;
             }
         }
+    }
+    
+    return result;
+}
+export async function findItems() {
+    
+    try {
 
+        let pattern='';
+        let searchPath='';
+        
+        const options1 = parseArgv(process.argv);
+        console.log(options1,'process.argv');
+        
+        // 解析搜索参数
+        const options: FindOptions = options1;
+    
         // 设置搜索路径
         const basePath = searchPath || process.cwd();
         if (!existsSync(basePath)) {
@@ -83,12 +115,12 @@ export async function findItems(searchPath: string, pattern?: string) {
                 const name = path.basename(result.path);
                 const nameColor = result.type === 'directory' ? chalk.blue : chalk.white;
 
-                console.log(
-                    nameColor(padEnd(name, 30)) +
-                    chalk.gray(padEnd(formatSize(result.size), 12)) +
-                    chalk.gray(padEnd(formatDate(result.modified), 20)) +
-                    chalk.gray(relativePath)
-                );
+                // console.log(
+                //     nameColor(padEnd(name, 30)) +
+                //     chalk.gray(padEnd(formatSize(result.size), 12)) +
+                //     chalk.gray(padEnd(formatDate(result.modified), 20)) +
+                //     chalk.gray(relativePath)
+                // );
             }
         }
 

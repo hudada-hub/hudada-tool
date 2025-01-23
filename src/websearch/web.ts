@@ -16,7 +16,7 @@ export async function handleGithubSearch(keyword: string) {
 
 export async function handleBaiduSearch(keyword: string) {
     try {
-        const searchUrl = `https://kaifa.baidu.com/searchPage?wd=${encodeURIComponent(keyword)}`;
+        const searchUrl = `https://kaifa.baidu.com/searchPage?wd=${encodeURIComponent(keyword +' -李彦宏')}`;
         console.log(chalk.green(`正在打开百度开发者搜索: ${keyword}`));
         await open(searchUrl);
     } catch (error: any) {

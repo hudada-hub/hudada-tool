@@ -1,4 +1,4 @@
-import { Command } from 'commander';
+import { Argument, Command } from 'commander';
 import chalk from 'chalk';
 import { readFileSync, readdirSync, existsSync, statSync, appendFileSync, mkdirSync, writeFileSync } from 'fs';
 
@@ -40,18 +40,43 @@ import { manageHosts } from './system/host';
 import { fileURLToPath } from 'url';
 import { md5String } from './md5';
 import { base64String } from './base64';
+import { getRandomComment } from './comment';
+import { cleanNodeModules } from './cleanModules';
+import { installDependencies } from './npmInstall';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 // @ts-ignore
 marked.use(markedTerminal({}));
 
+//
+//                            _ooOoo_
+//                           o8888888o
+//                           88" . "88
+//                           (| -_- |)
+//                           O\  =  /O
+//                        ____/`---'\____
+//                      .'  \\|     |//  `.
+//                     /  \\|||  :  |||//  \
+//                    /  _||||| -:- |||||-  \
+//                    |   | \\\  -  /// |   |
+//                    | \_|  ''\---/''  |   |
+//                    \  .-\__  `-`  ___/-. /
+//                  ___`. .'  /--.--\  `. . __
+//               ."" '<  `.___\_<|>_/___.'  >'"".
+//              | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+//              \  \ `-.   \_ __\ /__ _/   .-` /  /
+//         ======`-.____`-.___\_____/___.-`____.-'======
+//                            `=---='
+//        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//                      佛祖保佑       永无BUG
 const program = new Command();
 
 let isAllSearch = false;
 function getPackageVersion(): string {
     try {
         // 尝试读取项目根目录的 package.json
-        const packagePath = path.resolve(__dirname,'..', 'package.json');
+        const packagePath = path.resolve(__dirname, '..', 'package.json');
 
         const packageJson = JSON.parse(readFileSync(packagePath, 'utf-8'));
         return packageJson.version || '0.0.0';
@@ -69,9 +94,9 @@ program
     .arguments('[command...]')  // 使用可变参数
 
     .option('-s, --search <keyword>', '搜索指定内容（仅限文本文件）')
-.option('-d, --dir <path>', '添加目录路径到 mydir.txt')
-.option('-l, --list', '列出所有可用的搜索路径')
-.option('-r, --remove-dir <path>', '从 mydir.txt 中删除指定的目录路径')
+    .option('-d, --dir <path>', '添加目录路径到 mydir.txt')
+    .option('-l, --list', '列出所有可用的搜索路径')
+    .option('-r, --remove-dir <path>', '从 mydir.txt 中删除指定的目录路径')
     .option('-a, --append <text>', '追加文本到文档中')
 
     .action(async (args: string[], options: optionsType) => {
@@ -127,8 +152,8 @@ program
                 }
             }
 
-             // 处理删除目录的参数 (改用 removeDir)
-             if (options.removeDir) {
+            // 处理删除目录的参数 (改用 removeDir)
+            if (options.removeDir) {
                 try {
                     const dirPath = options.removeDir;
                     const existingPaths = getExistingPaths(mydirFile);
@@ -165,17 +190,17 @@ program
                 '--list'
             ]
             let lastIndex = argv.findIndex(arg => {
-                if(arglist.includes(arg)){
+                if (arglist.includes(arg)) {
                     return true;
                 }
                 return false;
             });
-            let mainCommand='';
-            let subCommand='';
+            let mainCommand = '';
+            let subCommand = '';
 
             if (lastIndex === -1) {
                 [mainCommand, subCommand] = argv
-            }else{
+            } else {
                 [mainCommand, subCommand] = argv.slice(0, lastIndex);
             }
 
@@ -202,7 +227,7 @@ program
             if (isDirectory) {
 
                 if (subCommand) {
-                    getFileContent(options, commandObj, true,args);
+                    getFileContent(options, commandObj, true, args);
                 } else {
 
                     // 如果有全局搜索参数和搜索关键词
@@ -231,7 +256,7 @@ program
                     return;
                 }
             } else {
-                getFileContent(options, commandObj, false,args);
+                getFileContent(options, commandObj, false, args);
             }
 
 
@@ -246,13 +271,13 @@ program
 
 
 
-    program
+program
     .command('local [port]')
     .description(`启动本地文件传输服务,适合大部分公司内部局域网传输;\n 将在本地命令行所在的文件夹创建一个${chalk.green('uploads')}文件夹,上传的文件都保存到该文件夹下`)
 
     .option('-p, --port <number>', '指定端口号（默认: 667）')
     .action((cmdPort, options) => {
-        console.log(cmdPort,'cmdPort',options);
+        console.log(cmdPort, 'cmdPort', options);
 
         // 优先使用命令行参数的端口号，其次使用选项的端口号，最后使用默认值
         const port = cmdPort || options.port || 667;
@@ -268,7 +293,7 @@ program
     });
 
 
-    program.command('ls')
+program.command('ls')
     .description('格式化列出当前目录内容')
     .action(async () => {
         await listFiles();
@@ -521,11 +546,9 @@ program
         '  - 支持正则表达式\n' +
         '  - 支持文件类型过滤\n' +
         '  - 支持大小和时间过滤')
-    .option('-t, --type <type>', '按类型过滤 (f:文件, d:目录)')
-    .option('-s, --size <size>', '按大小过滤')
-    .option('-d, --date <date>', '按日期过滤')
-    .action(async (path, pattern, options) => {
-        await findItems(path, pattern);
+    .action(async () => {
+       
+        await findItems();
     });
 
 // 系统命令组
@@ -587,7 +610,7 @@ program
             try {
                 console.log(chalk.green(`正在 ${name} 上搜索...`));
                 await fn(keyword);
-            } catch (error:any) {
+            } catch (error: any) {
                 console.error(chalk.red(`${name} 搜索失败:`, error.message));
             }
         }
@@ -702,28 +725,28 @@ program
         await handleBingSearch(keyword);
     });
 
-    // MD5 加密命令
+// MD5 加密命令
 program
-.command('md5 <text>')
-.description('对字符串进行 MD5 加密')
-.action(async (text) => {
-    if (!text || text.length === 0) {
-        console.log(chalk.yellow('请输入要加密的字符串'));
-        return;
-    }
-    md5String(text);
-});
+    .command('md5 <text>')
+    .description('对字符串进行 MD5 加密')
+    .action(async (text) => {
+        if (!text || text.length === 0) {
+            console.log(chalk.yellow('请输入要加密的字符串'));
+            return;
+        }
+        md5String(text);
+    });
 
 program
-.command('base64 <text>')
-.description('Base64 转换功能')
-.action(async (text) => {
-    if (!text || text.length === 0) {
-        console.log(chalk.yellow('请输入文件路径'));
-        return;
-    }
-    base64String(text);
-});
+    .command('base64 <text>')
+    .description('Base64 转换功能')
+    .action(async (text) => {
+        if (!text || text.length === 0) {
+            console.log(chalk.yellow('请输入文件路径'));
+            return;
+        }
+        base64String(text);
+    });
 
 
 
@@ -738,6 +761,50 @@ program
     });
 
 
+program.command('comment')
+.option('-g, --all', '获取所有的注释')
+.description("获取意思的注释")
+.action(async (options) => {
+
+    await getRandomComment(options);
+
+});
+
+program.command('cleannode')
+.description("获取意思的注释")
+.addArgument(new Argument('[dir]'))
+.action(async (arg,options) => {
+
+   
+    
+    const targetPath =  process.cwd();
+    let deleteDirName=  'node_modules';
+    if(arg){
+        deleteDirName = arg;
+    }
+    console.log(`开始清理 ${deleteDirName}，起始路径: ${targetPath}`);
+
+    try {
+        const deletedPaths = await cleanNodeModules(targetPath,deleteDirName);
+        console.log('\n清理完成！');
+        console.log(`共删除了 ${deletedPaths.length} 个 ${deleteDirName} 文件夹：`);
+        deletedPaths.forEach(path => console.log(`- ${path}`));
+    } catch (error) {
+        console.error('清理过程中发生错误:', error);
+        process.exit(1);
+    }
+
+});
+
+program
+    .command('install [path]')
+    .description('递归安装所有 package.json 的依赖\n' +
+        '  - 自动检测子目录中的 package.json\n' +
+        '  - 使用 pnpm 进行安装\n' +
+        '  - 跳过 node_modules 目录')
+    .action(async (path) => {
+        await installDependencies(path || '.');
+    });
 program.parse();
 
 
