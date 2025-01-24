@@ -15,6 +15,8 @@ export function setApiKey(key: string) {
         console.log(chalk.green('API Key 已保存'));
     } catch (error: any) {
         console.error(chalk.red(`保存 API Key 失败: ${error.message}`));
+    }finally {
+        process.exit(0);
     }
 }
 

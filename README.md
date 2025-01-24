@@ -234,7 +234,14 @@ my cli中,内置了一些常用的文档,比如git,docker,linux,python
 - `my mv <source> <destination>` - 移动文件或目录
 - `my zip <file> <archive>` - 压缩文件或目录
 - `my unzip <archive>` - 解压缩文件
-- `my find <path> <keyword>` - 查找文件或目录
+- `my find ` - 查找文件或目录
+
+demo:
+```bash
+my find -size=">2MB" type=f //表示查找大于2MB的文件,type=f表示查找文件
+
+```
+
 
 ![alt text](img/find.png)
 -

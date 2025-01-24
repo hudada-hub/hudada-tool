@@ -22,42 +22,29 @@ function parseArgv(argv: string[]): Record<string, string> {
     const result: Record<string, string> = {};
     
     // 跳过前两个参数（node可执行文件路径和脚本路径）
-    const args = argv.slice(4);
+    let args = argv.slice(2);
+      // 第一个参数作为搜索路径
+      if (args.length > 0 && !args[0].includes('=')) {
+        result['path'] = args[0];
+        args.shift();
+    }
 
-    
-    for (let i = 0; i < args.length; i++) {
-        const arg = args[i];
-        
+    // 处理剩余的参数
+    for (const arg of args) {
         if (arg.includes('=')) {
-            // 处理 key=value 格式
             const [key, value] = arg.split('=');
-            // 移除开头的 - 或 --
             const cleanKey = key.replace(/^-+/, '');
-            result[cleanKey] = value;
-        } else if (arg.startsWith('-')) {
-            // 处理选项参数（以 - 或 -- 开头）
-            const key = arg.replace(/^-+/, ''); // 移除开头的 - 或 --
-            
-            // 如果下一个参数不是选项，则认为是当前选项的值
-            if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
-                result[key] = args[i + 1];
-                i++; // 跳过下一个参数
-            } else {
-                // 如果没有值，则设置为 true
-                result[key] = 'true';
-            }
-        } else {
-            // 处理位置参数
-            if (!result['path']) {
-                result['path'] = arg;
-            } else if (!result['pattern']) {
-                result['pattern'] = arg;
-            }
+            // 如果值包含引号，去除它们
+            const cleanValue = value.replace(/^["']|["']$/g, '');
+            result[cleanKey] = cleanValue;
         }
     }
     
     return result;
 }
+
+
+   
 export async function findItems() {
     
     try {
@@ -66,20 +53,25 @@ export async function findItems() {
         let searchPath='';
         
         const options1 = parseArgv(process.argv);
-        console.log(options1,'process.argv');
-        
-        // 解析搜索参数
-        const options: FindOptions = options1;
+   
     
-        // 设置搜索路径
-        const basePath = searchPath || process.cwd();
+         // 设置搜索路径
+         const basePath =  process.cwd();
+         console.log(basePath);
+         
         if (!existsSync(basePath)) {
             console.error(chalk.red(`路径不存在: ${basePath}`));
             return;
         }
-
+        // 移除 path 属性，只保留搜索条件
+        delete options1.path;
+             
+        // 解析搜索参数
+        const options: FindOptions = options1;
         console.log(chalk.cyan('开始搜索:'));
         console.log(chalk.gray(`搜索路径: ${basePath}`));
+        console.log(options);
+        
         if (Object.keys(options).length > 0) {
             console.log(chalk.gray('搜索条件:'));
             if (options.name) console.log(chalk.gray(`- 名称: ${options.name}`));
@@ -111,16 +103,16 @@ export async function findItems() {
             console.log(chalk.green(`\n找到 ${results.length} 个匹配项:`));
 
             for (const result of results) {
-                const relativePath = path.relative(basePath, result.path);
+                const absolutePath = path.resolve(basePath, result.path);
                 const name = path.basename(result.path);
                 const nameColor = result.type === 'directory' ? chalk.blue : chalk.white;
 
-                // console.log(
-                //     nameColor(padEnd(name, 30)) +
-                //     chalk.gray(padEnd(formatSize(result.size), 12)) +
-                //     chalk.gray(padEnd(formatDate(result.modified), 20)) +
-                //     chalk.gray(relativePath)
-                // );
+                console.log(
+                    nameColor(padEnd(name, 30)) +
+                    chalk.gray(padEnd(formatSize(result.size), 12)) +
+                    chalk.gray(padEnd(formatDate(result.modified), 20)) +
+                    chalk.gray(absolutePath)
+                );
             }
         }
 
@@ -142,8 +134,14 @@ async function searchFiles(
     if (options.maxdepth !== undefined && depth > options.maxdepth) {
         return;
     }
-
-    const entries = await fs.readdirSync(currentPath, { withFileTypes: true });
+    let entries: fs.Dirent[];
+    try {
+        entries = await fs.readdirSync(currentPath, { withFileTypes: true });
+    } catch (error) {
+        console.error(chalk.yellow(`警告: 无法访问目录 ${currentPath}: ${(error as Error).message}`));
+        return;
+    }
+  
 
     for (const entry of entries) {
         // 跳过隐藏文件和特定目录
@@ -152,6 +150,7 @@ async function searchFiles(
         }
 
         const fullPath = path.join(currentPath, entry.name);
+        try {
         const stats = await fs.statSync(fullPath);
 
         // 检查是否匹配搜索条件
@@ -163,10 +162,15 @@ async function searchFiles(
                 modified: stats.mtime
             });
         }
+        
 
         // 递归搜索子目录
         if (entry.isDirectory()) {
             await searchFiles(fullPath, options, results, depth + 1);
+        }
+        } catch (error) {
+            console.error(chalk.yellow(`警告: 无法访问文件 ${fullPath}: ${(error as Error).message}`));
+            continue;
         }
     }
 }
@@ -211,27 +215,67 @@ function matchesSearchCriteria(
     return true;
 }
 
-function parseSize(sizeStr: string): { op: '>' | '<'; size: number } | null {
-    const match = sizeStr.match(/^([<>])(\d+)(B|KB|MB|GB)?$/i);
+function parseSize(sizeStr: string): { op: '>' | '<' | '>=' | '<=' | '=' | 'range'; size: number; size2?: number } | null {
+    // 处理范围查询 (例如：1MB-10MB)
+    if (sizeStr.includes('-')) {
+        const [min, max] = sizeStr.split('-');
+        const minSize = parseSimpleSize(min);
+        const maxSize = parseSimpleSize(max);
+        if (minSize && maxSize) {
+            return {
+                op: 'range',
+                size: minSize,
+                size2: maxSize
+            };
+        }
+        return null;
+    }
+
+    // 处理单个值查询
+    const match = sizeStr.match(/^([<>]=?|=)?\s*(\d+(?:\.\d+)?)\s*(B|KB|MB|GB|TB)?$/i);
     if (!match) return null;
 
-    const [, op, value, unit] = match;
+    const [, op = '=', value, unit] = match;
+    const size = parseSimpleSize(`${value}${unit || ''}`);
+    if (!size) return null;
+
+    return {
+        op: op as '>' | '<' | '>=' | '<=' | '=',
+        size
+    };
+}
+
+function parseSimpleSize(sizeStr: string): number | null {
+    const match = sizeStr.trim().match(/^(\d+(?:\.\d+)?)\s*(B|KB|MB|GB|TB)?$/i);
+    if (!match) return null;
+
+    const [, value, unit] = match;
     let multiplier = 1;
     switch (unit?.toUpperCase()) {
         case 'KB': multiplier = 1024; break;
         case 'MB': multiplier = 1024 * 1024; break;
         case 'GB': multiplier = 1024 * 1024 * 1024; break;
+        case 'TB': multiplier = 1024 * 1024 * 1024 * 1024; break;
     }
 
-    return {
-        op: op as '>' | '<',
-        size: parseInt(value) * multiplier
-    };
+    return parseFloat(value) * multiplier;
 }
 
-function matchesSize(fileSize: number, criteria: { op: '>' | '<'; size: number }): boolean {
-    return criteria.op === '>' ? fileSize > criteria.size : fileSize < criteria.size;
+
+function matchesSize(fileSize: number, criteria: { op: '>' | '<' | '>=' | '<=' | '=' | 'range'; size: number; size2?: number }): boolean {
+    switch (criteria.op) {
+        case '>': return fileSize > criteria.size;
+        case '<': return fileSize < criteria.size;
+        case '>=': return fileSize >= criteria.size;
+        case '<=': return fileSize <= criteria.size;
+        case '=': return Math.abs(fileSize - criteria.size) < 1; // 允许 1 字节的误差
+        case 'range': return criteria.size2 !== undefined && 
+                            fileSize >= criteria.size && 
+                            fileSize <= criteria.size2;
+        default: return false;
+    }
 }
+
 
 function formatSize(bytes: number): string {
     if (bytes === 0) return '0 B';

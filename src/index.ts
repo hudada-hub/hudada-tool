@@ -266,6 +266,8 @@ program
             console.log(chalk.yellow(`Available commands: ${availableFiles.join(', ')}`));
             process.exit(1);
 
+        }finally {
+            process.exit(0);
         }
     });
 
@@ -297,6 +299,7 @@ program.command('ls')
     .description('格式化列出当前目录内容')
     .action(async () => {
         await listFiles();
+        process.exit(0);
     });
 
 // 端口管理命令
@@ -305,6 +308,7 @@ program
     .description('结束指定端口的进程')
     .action(async (port) => {
         await killPort(port);
+        process.exit(0);
     });
 
 // 图片处理命令组
@@ -313,6 +317,7 @@ program
     .description('批量处理图片抠图，将当前目录下的所有图片进行智能抠图处理')
     .action(async () => {
         await processImages();
+        process.exit(0);
     });
 
 program
@@ -320,6 +325,7 @@ program
     .description('压缩当前目录下的所有图片，支持 jpg、png、gif 等格式\n  压缩后的图片将保存在 compressed 文件夹中')
     .action(async () => {
         await compressImages();
+        process.exit(0);
     });
 
 // SSH 服务器命令
@@ -329,6 +335,7 @@ program
     .option('-p, --port <number>', '指定 SSH 服务器端口号')
     .action(async (options) => {
         await startSSHServer(options.port);
+        process.exit(0);
     });
 
 // VS Code 相关命令
@@ -339,6 +346,7 @@ program
     .option('-r, --reuse', '复用已有窗口')
     .action((paths,) => {
         handleVSCode(paths);
+        process.exit(0);
     });
 
 // 颜色处理命令
@@ -354,6 +362,7 @@ program
         '  color red')
     .action((value) => {
         handleColor([value]);
+        process.exit(0);
     });
 
 // 日期时间命令
@@ -366,6 +375,7 @@ program
         '  - 本地时区信息')
     .action(() => {
         handleDate();
+        process.exit(0);
     });
 
 // 预览命令
@@ -378,6 +388,7 @@ program
     .option('-p, --port <number>', '指定预览服务器端口号', '3000')
     .action(async (options) => {
         await startPreview(options.port);
+        process.exit(0);
     });
 
 // 翻译相关命令
@@ -391,16 +402,28 @@ program
 
 
         await handleSetTranslateKey();
+        process.exit(0);
     });
 
 
 // AI 助手命令
 program
     .command('ai [prompt...]')
-    .description('AI 助手工具')
-    .action(async (prompt) => {
+    .description('AI 助手工具'+`
+        my ai list: 列出所有 AI 对话模板
+        my ai add: 添加新的 AI 对话模板
+        my ai key :添加deepseek api key
+        my ai clear:清除聊天历史记录
+        
+        
+        `)
+    .action(async (prompt, arg) => {
+      
+
         if (!prompt || prompt.length === 0) {
             console.log(chalk.yellow('请输入要询问的内容'));
+
+            process.exit(0);
             return;
         }
         await handleAi(prompt);
@@ -441,6 +464,7 @@ program
     .description('给出10个mp3 文件链接')
     .action(() => {
         handleMusicUrls();
+        process.exit(0);
     });
 
 program
@@ -448,6 +472,7 @@ program
     .description('给出10个png 图片链接')
     .action(() => {
         handlePngUrls();
+        process.exit(0);
     });
 
 // DNS 查询命令
@@ -460,6 +485,7 @@ program
         '示例：dns example.com')
     .action(async (domain) => {
         await handleDNSLookup(domain);
+        process.exit(0);
     });
 
 // 文件系统命令组
@@ -473,6 +499,7 @@ program
     .option('-r, --recursive', '递归删除目录')
     .action(async (path, options) => {
         await removeFileOrDirectory(path);
+        process.exit(0);
     });
 
 program
@@ -482,6 +509,7 @@ program
         '  - 如果文件存在则更新时间戳')
     .action(async (path) => {
         await touchFile(path);
+        process.exit(0);
     });
 
 program
@@ -493,6 +521,7 @@ program
     .option('-m, --mode <mode>', '设置目录权限')
     .action(async (path, options) => {
         await makeDirectory(path);
+        process.exit(0);
     });
 
 program
@@ -503,6 +532,7 @@ program
         '  - 支持批量移动')
     .action(async (source, destination) => {
         await moveFileOrDirectory(source, destination);
+        process.exit(0);
     });
 
 program
@@ -515,6 +545,7 @@ program
     .option('-p, --preserve', '保留文件属性')
     .action(async (source, destination, options) => {
         await copyFileOrDirectory(source, destination,);
+        process.exit(0);
     });
 
 program
@@ -527,6 +558,7 @@ program
     .option('-l, --level <level>', '设置压缩等级 (1-9)', '6')
     .action(async (source, destination, options) => {
         await zipFileOrDirectory(source, destination);
+        process.exit(0);
     });
 
 program
@@ -538,6 +570,7 @@ program
     .option('-p, --password <password>', '设置解压密码')
     .action(async (source, destination, options) => {
         await unzipFile(source, destination);
+        process.exit(0);
     });
 
 program
@@ -549,6 +582,7 @@ program
     .action(async () => {
        
         await findItems();
+        process.exit(0);
     });
 
 // 系统命令组
@@ -561,6 +595,7 @@ program
         '  - 网络接口信息')
     .action(async () => {
         await getSystemInfo();
+        process.exit(0);
     });
 
 program
@@ -576,6 +611,7 @@ program
         '  host list')
     .action(async (action, hostname, ip) => {
         await manageHosts(action, hostname, ip);
+        process.exit(0);
     });
 
 // 全局搜索命令
@@ -625,6 +661,7 @@ program
         '  - 搜索问题')
     .action(async (keyword) => {
         await handleGithubSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -634,6 +671,7 @@ program
         '  - 支持智能推荐')
     .action(async (keyword) => {
         await handleBaiduSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -644,6 +682,7 @@ program
         '  - 查看解决方案')
     .action(async (keyword) => {
         await handleStackOverflowSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -655,6 +694,7 @@ program
         '  - 搜索专栏')
     .action(async (keyword) => {
         await handleBilibiliSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -665,6 +705,7 @@ program
         '  - 搜索专栏')
     .action(async (keyword) => {
         await handleJuejinSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -675,6 +716,7 @@ program
         '  - 搜索专栏')
     .action(async (keyword) => {
         await handleZhihuSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -685,6 +727,7 @@ program
         '  - 开发指南')
     .action(async (keyword) => {
         await handleMDN([keyword]);
+        process.exit(0);
     });
 
 program
@@ -695,6 +738,7 @@ program
         '  - 搜索资源')
     .action(async (keyword) => {
         await handleCSDNSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -705,6 +749,7 @@ program
         '  - 查看包文档')
     .action(async (keyword) => {
         await handleNpmSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -714,6 +759,7 @@ program
         '  - 支持高级搜索语法')
     .action(async (keyword) => {
         await handleGoogleSearch(keyword);
+        process.exit(0);
     });
 
 program
@@ -723,6 +769,7 @@ program
         '  - AI 驱动的搜索结果')
     .action(async (keyword) => {
         await handleBingSearch(keyword);
+        process.exit(0);
     });
 
 // MD5 加密命令
@@ -735,6 +782,7 @@ program
             return;
         }
         md5String(text);
+        process.exit(0);
     });
 
 program
@@ -746,6 +794,7 @@ program
             return;
         }
         base64String(text);
+        process.exit(0);
     });
 
 
@@ -767,11 +816,12 @@ program.command('comment')
 .action(async (options) => {
 
     await getRandomComment(options);
+    process.exit(0);
 
 });
 
 program.command('cleannode')
-.description("获取意思的注释")
+.description("默认递归清除node_modules,使用my cleannode [dir] 递归清除指定目录")
 .addArgument(new Argument('[dir]'))
 .action(async (arg,options) => {
 
@@ -804,6 +854,7 @@ program
         '  - 跳过 node_modules 目录')
     .action(async (path) => {
         await installDependencies(path || '.');
+        process.exit(0);
     });
 program.parse();
 
