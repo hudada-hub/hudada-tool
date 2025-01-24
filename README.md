@@ -142,9 +142,18 @@ my cli中,内置了一些常用的文档,比如git,docker,linux,python
 
 使用deepseek的ai对话功能,可以直接输入`my ai`即可,输入`my ai 给我生成一个vue页面`即可进行对话
 
+
+
 ![image](./img/ai生成.png)
 
 
+
+命令行关于AI方面的使用方法:
+1. AI对话,历史记忆功能,使用`my ai clear`可以清除历史记忆
+2. AI对话模板选择,使用`my ai list`可以查看模板列表,使用`my ai add`可以添加自定义模板
+3. AI对话文件读取,使用`my ai read`可以读取文件内容,使用`my ai read <文件路径>`可以读取指定文件内容,然后通过内容,来进行AI对话
+4. AI对话保存回复,使用`my ai save`可以保存AI对话到文件,使用`my ai -save <文件路径>`可以保存AI对话到指定文件
+5. AI配置,使用`my ai key`可以配置AI的key,我使用的是deepseek的api,需要你自己申请key来配置,来使用这个ai对话功能
 
 ### ssh服务器登录,服务器文件上传下载
 
@@ -291,12 +300,9 @@ my find -size=">2MB" type=f //表示查找大于2MB的文件,type=f表示查找�
 ![alt text](img/base64.png)
 
 
-- `my comment` - 生成类似佛祖保佑的注释
-
-- `my cleannode` - 一键可以循环清理node_modules文件夹
-
-- `my install` 循环检测文件夹中是否有package.json,如果有就安装依赖
-
+- `my comment`,随机生成类似佛祖保佑的代码注释
+- `my cleannode`,循环遍历当前文件夹及子文件夹,默认清除所有`node_modules`文件夹,如果使用`my cleannode 文件夹名称`,则清除指定文件夹
+- `my install`,循环遍历当前文件夹以及子文件夹,检测是否有`package.json`文件,如果有,则使用`npm install`安装依赖
 
 
 
